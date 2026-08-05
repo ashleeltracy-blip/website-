@@ -64,10 +64,31 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
 
-      // No backend is wired up yet; confirm receipt locally and reset the form.
-      formStatus.textContent = 'Thank you — your inquiry has been received. I will respond as soon as possible.';
-      formStatus.className = 'form-status success';
-      form.reset();
+      var submitBtn = form.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+
+      fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { Accept: 'application/json' }
+      })
+        .then(function (response) {
+          if (response.ok) {
+            formStatus.textContent = 'Thank you — your inquiry has been received. I will respond as soon as possible.';
+            formStatus.className = 'form-status success';
+            form.reset();
+          } else {
+            formStatus.textContent = 'Something went wrong sending your message. Please try again or email me directly.';
+            formStatus.className = 'form-status error';
+          }
+        })
+        .catch(function () {
+          formStatus.textContent = 'Something went wrong sending your message. Please try again or email me directly.';
+          formStatus.className = 'form-status error';
+        })
+        .finally(function () {
+          submitBtn.disabled = false;
+        });
     });
   }
 
